@@ -10,27 +10,101 @@
     
     <script type = "module">
 
-        const CANVAS_WIDTH  =   640
+        const CANVAS_WIDTH  =   854
         const CANVAS_HEIGHT =   480
 
         class GoldFish {
 
             constructor() {
 
-                let MIN_size = 0.8
-                let MAX_size = 1.2
+                let MIN_size = 0.6
+                let MAX_size = 1.3
+
+                this.fish_state
+                this.idle_timer = 0
 
                 this.fish = PIXI.Sprite.from("img/Goldfish.png")
-                    this.fish.scale.set(Math.random() * (MAX_size - MIN_size) + MIN_size)
+                    this.size = Math.random() * (MAX_size - MIN_size) + MIN_size
+                    this.size_bg = this.size - 0.2
+                    this.size_fg = this.size + 0.2
+
+                    this.direction = "right"
+                    
+                    this.fish.scale.set(this.size)
                     this.fish.x = Math.random() * CANVAS_WIDTH
                     this.fish.y = Math.random() * CANVAS_HEIGHT
+
+                    this.fish_state = "idle"
 
                 app.stage.addChild(this.fish)
 
             }
             
             behavior(counter) {
-                this.fish.y = (Math.sin(counter/40) * 30) + 200
+
+                if (this.fish_state == "idle") {
+
+                    this.fish.y = (Math.sin(counter/80) * 20) + 100
+
+                    this.idle_timer++
+                        
+                    if (this.idle_timer == 700) {
+                        this.pick_position()
+                    }
+
+                }
+
+                if (this.fish_state == "moving") {
+                    this.move_around(counter)
+                }
+
+            }
+
+            pick_position() {
+                let current_pos = this.fish.x
+
+                this.new_position = Math.random() * CANVAS_WIDTH
+
+                this.idle_timer = 0
+                this.fish_state = "moving"
+            }
+
+            move_around(counter) {
+                let current_pos = this.fish.x
+
+                if (current_pos >= CANVAS_WIDTH + 200) {
+                    this.flip_image_left()
+                }
+                if (current_pos <= -200) {
+                    this.flip_image_right()
+                }
+
+                if (current_pos > this.new_position + 50 || current_pos < this.new_position - 50) {
+                    if (this.direction == "right") {
+                        this.fish.x += counter/220
+                    } else {
+                        this.fish.x -= counter/220
+                    }
+
+                } else {
+                    this.fish_state = "idle"
+                }
+
+            }
+            
+
+            flip_image_left() {
+                this.fish.scale.set(this.size_bg)
+                this.fish.scale.x = this.size_bg * -1
+                this.direction = "left"
+
+            }
+
+            flip_image_right() {
+                this.fish.scale.set(this.size_fg)
+                this.fish.scale.x = this.size_fg
+                this.direction = "right"
+                
             }
 
         }
@@ -55,7 +129,7 @@
         // Create Actors
         var gold_fish = new GoldFish()
 
-        // Create abd Draw Forground
+        // Create and Draw Forground
 
         let counter = 0
 
