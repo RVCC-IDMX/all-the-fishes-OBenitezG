@@ -119,7 +119,7 @@
                 this.fish_state
                 this.idle_timer = 0
 
-                //this.color_array = [D20103, 5DE2E7, ]
+                this.color_array = [0xD20103, 0x5DE2E7, 0x9474f9]
 
                 this.fish = PIXI.Sprite.from("img/Bettafish.png")
                     this.size = Math.random() * (MAX_size - MIN_size) + MIN_size
@@ -146,7 +146,7 @@
 
                     this.idle_timer++
                         
-                    if (this.idle_timer == 700) {
+                    if (this.idle_timer == 100) {
                         this.pick_position()
                     }
 
@@ -159,12 +159,17 @@
             }
 
             pick_position() {
+                let random_choice = Math.round((Math.random() * this.color_array.length) - 1)
+
+                this.fish.tint = this.color_array[random_choice]
+
                 let current_pos = this.fish.x
 
                 this.new_position = Math.random() * CANVAS_WIDTH
 
                 this.idle_timer = 0
                 this.fish_state = "moving"
+
             }
 
             move_around(counter) {
