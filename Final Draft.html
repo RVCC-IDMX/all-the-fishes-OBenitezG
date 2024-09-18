@@ -109,6 +109,103 @@
 
         }
 
+        class Bettafish {
+
+            constructor() {
+
+                let MIN_size = 0.4
+                let MAX_size = 1.0
+
+                this.fish_state
+                this.idle_timer = 0
+
+                //this.color_array = [D20103, 5DE2E7, ]
+
+                this.fish = PIXI.Sprite.from("img/Bettafish.png")
+                    this.size = Math.random() * (MAX_size - MIN_size) + MIN_size
+                    this.size_bg = this.size - 0.2
+                    this.size_fg = this.size + 0.2
+
+                    this.direction = "left"
+                    
+                    this.fish.scale.set(this.size)
+                    this.fish.x = Math.random() * CANVAS_WIDTH
+                    this.fish.y = Math.random() * CANVAS_HEIGHT
+
+                    this.fish_state = "idle"
+
+                app.stage.addChild(this.fish)
+
+            }
+
+            behavior(counter) {
+
+                if (this.fish_state == "idle") {
+
+                    this.fish.y = (Math.sin(counter/80) * 20) + 100
+
+                    this.idle_timer++
+                        
+                    if (this.idle_timer == 700) {
+                        this.pick_position()
+                    }
+
+                }
+
+                if (this.fish_state == "moving") {
+                    this.move_around(counter)
+                }
+
+            }
+
+            pick_position() {
+                let current_pos = this.fish.x
+
+                this.new_position = Math.random() * CANVAS_WIDTH
+
+                this.idle_timer = 0
+                this.fish_state = "moving"
+            }
+
+            move_around(counter) {
+                let current_pos = this.fish.x
+
+                if (current_pos >= CANVAS_WIDTH + 200) {
+                    this.flip_image_left()
+                }
+                if (current_pos <= -200) {
+                    this.flip_image_right()
+                }
+
+                if (current_pos > this.new_position + 50 || current_pos < this.new_position - 50) {
+                    if (this.direction == "right") {
+                        this.fish.x += counter/220
+                    } else {
+                        this.fish.x -= counter/220
+                    }
+
+                } else {
+                    this.fish_state = "idle"
+                }
+
+            }
+
+
+            flip_image_left() {
+                this.fish.scale.set(this.size_bg)
+                this.fish.scale.x = this.size_bg
+                this.direction = "left"
+
+            }
+
+            flip_image_right() {
+                this.fish.scale.set(this.size_fg)
+                this.fish.scale.x = this.size_fg * -1
+                this.direction = "right"
+                
+            }
+
+        }
 
         const app = new PIXI.Application()
         await app.init({
@@ -122,14 +219,23 @@
         window.app = app
 
         // Load Images
+        await PIXI.Assets.load("img/Background.png")
         await PIXI.Assets.load("img/Goldfish.png")
+        await PIXI.Assets.load("img/Bettafish.png")
+        await PIXI.Assets.load("img/Foreground.png")
 
         // Create and Draw Background
+        let background = PIXI.Sprite.from("img/Background.png")
+        app.stage.addChild(background)
 
         // Create Actors
         var gold_fish = new GoldFish()
+        var gold_fish2 = new GoldFish()
+        var betta_fish = new Bettafish()
 
         // Create and Draw Forground
+        let foreground = PIXI.Sprite.from("img/Foreground.png")
+        app.stage.addChild(foreground)
 
         let counter = 0
 
@@ -137,6 +243,8 @@
             counter++
 
             gold_fish.behavior(counter)
+            gold_fish2.behavior(counter)
+            betta_fish.behavior(counter)
 
             requestAnimationFrame(loop)
         }
